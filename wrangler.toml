@@ -11,7 +11,7 @@ pages_build_output_dir = "public"
 [[d1_databases]]
 binding = "DB"
 database_name = "indra-net-db"
-database_id = "8ad5415d-125f-497d-b03a-3170b944f3e3" 
+database_id = ""  # ← Fill after running: npx wrangler d1 create indra-net-db
 
 # ── Environment Variables (set via dashboard or wrangler secret) ──
 # ADMIN_USERNAME  - Admin login username
