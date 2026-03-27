@@ -13,14 +13,7 @@ binding = "DB"
 database_name = "indra-net-db"
 database_id = "8ad5415d-125f-497d-b03a-3170b944f3e3" 
 
-# ── Environment Variables (set via dashboard or wrangler secret) ──
-# ADMIN_USERNAME  - Admin login username
-# ADMIN_PASSWORD  - Admin login password
-# ADMIN_SECRET    - Secret key for signing admin tokens
-MP_ACCESS_TOKEN = "APP_USR-1491988037159322-032717-f2335f8431d39ab507b1f4e4ba599896-3228897051"
-MP_PUBLIC_KEY   = "APP_USR-a123e0d5-6a44-447b-9179-49528b27f292"
-CURRENCY        = "UYU"
-# SITE_URL        - Your deployed site URL (for webhook callbacks)
-
 [vars]
-CURRENCY = "ARS"
+# ── Environment Variables ────────────────────────────────────
+# Non-sensitive variables can be committed safely:
+CURRENCY = "UYU"
