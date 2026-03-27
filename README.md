@@ -281,7 +281,7 @@ Estados      #30A46C (éxito)       #F5A623 (advertencia) #E5484D (peligro)
 
 ### Tarjetas de producto
 
-Cada tarjeta tiene sombras multicapa (borde highlight + sombra ajustada + sombra difusa + oscuridad ambiental), un borde superior con gradiente de 1px, y un efecto de **spotlight** que sigue el cursor — un gradiente radial de 400px del color acento al 10% de opacidad.
+Cada tarjetas tiene sombras multicapa (borde highlight + sombra ajustada + sombra difusa + oscuridad ambiental), un borde superior con gradiente de 1px, y un efecto de **spotlight** que sigue el cursor — un gradiente radial de 400px del color acento al 10% de opacidad.
 
 ### Placeholders generativos
 
