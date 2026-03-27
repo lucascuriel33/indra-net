@@ -1,319 +1,325 @@
-# Indra Net — Cloudflare Pages Edition
+<p align="center">
+  <img src="https://img.shields.io/badge/cloudflare-pages-F38020?style=flat-square&logo=cloudflare&logoColor=white" alt="Cloudflare Pages"/>
+  <img src="https://img.shields.io/badge/database-D1_(SQLite)-003682?style=flat-square&logo=sqlite&logoColor=white" alt="D1"/>
+  <img src="https://img.shields.io/badge/payments-MercadoPago-00B1EA?style=flat-square&logo=mercadopago&logoColor=white" alt="MercadoPago"/>
+  <img src="https://img.shields.io/badge/language-es-red?style=flat-square" alt="Español"/>
+</p>
 
-A premium, cinematic e-commerce storefront running entirely on **Cloudflare Pages + Functions + D1**, with **MercadoPago** payment integration. Zero servers. Global edge deployment.
+<h1 align="center">
+  <br>
+  ◉ Indra Net
+  <br>
+</h1>
+
+<p align="center">
+  <strong>Tienda e-commerce serverless con diseño cinematográfico</strong><br>
+  <sub>Cloudflare Pages · D1 · Pages Functions · MercadoPago</sub>
+</p>
+
+<p align="center">
+  <a href="#-inicio-rápido">Inicio Rápido</a> ·
+  <a href="#-deployment">Deployment</a> ·
+  <a href="#-api">API</a> ·
+  <a href="#-mercadopago">MercadoPago</a> ·
+  <a href="#-sistema-de-diseño">Diseño</a>
+</p>
 
 ---
 
-## Architecture
+## Qué es Indra Net
+
+Una tienda online que corre 100% en el edge de Cloudflare — sin servidores, sin contenedores, sin infraestructura que mantener. Las páginas estáticas se sirven desde el CDN global, la lógica de negocio corre en Pages Functions (edge JavaScript), y los datos viven en D1, la base de datos SQLite serverless de Cloudflare. Los pagos se procesan a través de MercadoPago.
+
+La interfaz está construida con una estética inspirada en Linear y Vercel: fondos de negro profundo con gradientes animados, texturas de ruido SVG, un motivo geométrico de red (la "Red de Indra"), tarjetas con sombras multicapa, y un efecto de spotlight que sigue el cursor del mouse.
+
+---
+
+## ◈ Estructura del Proyecto
 
 ```
 indra-net/
-├── public/                    ← Static assets (served by Cloudflare Pages)
-│   ├── index.html             ← Storefront (home / shop)
-│   ├── product.html           ← Product detail (?slug=xxx)
-│   ├── checkout.html          ← Checkout with MercadoPago
-│   ├── admin.html             ← Admin login
-│   ├── dashboard.html         ← Admin dashboard (CRUD)
-│   ├── success.html           ← Payment success
-│   ├── failure.html           ← Payment failure
-│   ├── pending.html           ← Payment pending
-│   ├── _routes.json           ← Route config (static vs functions)
+│
+├── public/                         Archivos estáticos → CDN global
+│   ├── index.html                  Tienda principal
+│   ├── product.html                Detalle de producto
+│   ├── checkout.html               Checkout con MercadoPago
+│   ├── admin.html                  Login de administrador
+│   ├── dashboard.html              Panel de administración (CRUD)
+│   ├── success.html                Pago exitoso
+│   ├── failure.html                Pago fallido
+│   ├── pending.html                Pago pendiente
+│   ├── _routes.json                Rutas estáticas vs. funciones
 │   └── static/
-│       ├── css/style.css      ← Full design system
-│       └── js/main.js         ← Cart, toasts, spotlights
+│       ├── css/style.css           Sistema de diseño completo
+│       └── js/main.js              Carrito, toasts, spotlights
 │
-├── functions/                 ← Cloudflare Pages Functions (edge JS)
-│   ├── _middleware.js         ← Auth parsing + CORS
+├── functions/                      Edge Functions (serverless JS)
+│   ├── _middleware.js              Auth + CORS
 │   ├── api/
-│   │   ├── products/
-│   │   │   ├── index.js       ← GET list / POST create
-│   │   │   ├── [id].js       ← GET / PUT / DELETE single
-│   │   │   └── by-slug/
-│   │   │       └── [slug].js  ← GET by slug
-│   │   ├── categories/
-│   │   │   └── index.js       ← GET categories
-│   │   ├── orders/
-│   │   │   ├── index.js       ← GET all orders
-│   │   │   └── [id]/
-│   │   │       └── status.js  ← PUT update status
-│   │   ├── checkout/
-│   │   │   └── index.js       ← POST create order + MP pref
-│   │   └── webhook/
-│   │       └── mp.js          ← POST MercadoPago IPN
+│   │   ├── products/               CRUD de productos
+│   │   ├── categories/             Listado de categorías
+│   │   ├── orders/                 Gestión de pedidos
+│   │   ├── checkout/               Crear pedido + preferencia MP
+│   │   └── webhook/mp.js           Webhook IPN de MercadoPago
 │   └── admin/
-│       ├── login.js           ← POST authenticate
-│       ├── logout.js          ← GET clear session
-│       └── check.js           ← GET check auth status
+│       ├── login.js                Autenticación
+│       ├── logout.js               Cerrar sesión
+│       └── check.js                Verificar estado de sesión
 │
-├── schema.sql                 ← D1 database schema
-├── seed.sql                   ← Sample product data
-├── wrangler.toml              ← Cloudflare config + D1 binding
-├── package.json               ← Scripts for dev/deploy/db
-├── .dev.vars.example          ← Local dev secrets template
-└── .gitignore
+├── schema.sql                      Esquema de la base de datos D1
+├── seed.sql                        Datos iniciales de productos
+├── wrangler.toml                   Configuración de Cloudflare
+├── package.json                    Scripts de desarrollo y deploy
+└── .dev.vars.example               Template de secrets locales
 ```
 
 ---
 
-## Step-by-Step: Git + Cloudflare Pages Deployment
+## 🚀 Inicio Rápido
 
-### Prerequisites
+### Requisitos previos
 
-- A [Cloudflare account](https://dash.cloudflare.com/sign-up) (free tier works)
 - [Node.js](https://nodejs.org/) v18+
-- [Git](https://git-scm.com/)
-- A [GitHub](https://github.com/) or [GitLab](https://gitlab.com/) account
-- (Optional) [MercadoPago developer account](https://www.mercadopago.com/developers)
+- Cuenta en [Cloudflare](https://dash.cloudflare.com/sign-up)
+- Cuenta en [GitHub](https://github.com/) o [GitLab](https://gitlab.com/)
+- (Opcional) Cuenta de desarrollador en [MercadoPago](https://www.mercadopago.com/developers)
 
-### 1. Install Wrangler CLI
+### Instalación
 
 ```bash
+# 1. Instalar Wrangler y autenticarse
 npm install -g wrangler
 wrangler login
-```
 
-This opens your browser to authenticate with your Cloudflare account.
-
-### 2. Clone / Init the repo
-
-```bash
-cd indra-net
-git init
-git add .
-git commit -m "Initial commit: Indra Net e-commerce"
-```
-
-Create a new repo on GitHub, then:
-
-```bash
-git remote add origin https://github.com/YOUR_USER/indra-net.git
-git branch -M main
-git push -u origin main
-```
-
-### 3. Create the D1 Database
-
-```bash
+# 2. Crear la base de datos D1
 npx wrangler d1 create indra-net-db
 ```
 
-This prints a `database_id` — copy it. Open `wrangler.toml` and paste:
+Copiar el `database_id` que devuelve el comando y pegarlo en `wrangler.toml`:
 
 ```toml
 [[d1_databases]]
 binding = "DB"
 database_name = "indra-net-db"
-database_id = "paste-your-id-here"   # ← PASTE HERE
+database_id = "acá-va-tu-id"
 ```
-
-Commit this change:
 
 ```bash
-git add wrangler.toml
-git commit -m "Add D1 database ID"
-git push
+# 3. Configurar secrets locales
+cp .dev.vars.example .dev.vars
+# Editar .dev.vars con tus credenciales
+
+# 4. Inicializar la base de datos local
+npm run db:reset:local
+
+# 5. Levantar el servidor de desarrollo
+npx wrangler pages dev public
 ```
 
-### 4. Initialize the Database
+Abrir [http://localhost:8788](http://localhost:8788) → la tienda completa funcionando con datos de D1.
 
-**Remote (production):**
+---
+
+## ☁ Deployment
+
+### Opción A — Git integration (recomendado)
+
+Cada push a `main` hace deploy automático.
+
+```bash
+# Subir el repo a GitHub
+git init && git add . && git commit -m "Initial commit"
+git remote add origin https://github.com/TU_USUARIO/indra-net.git
+git branch -M main && git push -u origin main
+```
+
+Después, en el [Dashboard de Cloudflare](https://dash.cloudflare.com/?to=/:account/workers-and-pages):
+
+1. **Workers & Pages** → **Crear** → **Pages** → **Conectar a Git**
+2. Seleccionar el repo `indra-net`
+3. Configuración de build:
+   - Build command: _(dejar vacío)_
+   - Build output directory: `public`
+4. **Guardar y Deploy**
+
+### Opción B — Deploy manual
+
+```bash
+npx wrangler pages deploy public
+```
+
+### Después del primer deploy
+
+#### Vincular la base de datos D1
+
+**Workers & Pages** → `indra-net` → **Settings** → **Bindings** → **Add** → **D1 database**
+- Variable name: `DB`
+- Seleccionar `indra-net-db`
+
+> Si `wrangler.toml` tiene el `database_id` correcto, el binding se aplica automáticamente en el siguiente deploy.
+
+#### Inicializar la base de datos remota
 
 ```bash
 npx wrangler d1 execute indra-net-db --file=schema.sql --remote
 npx wrangler d1 execute indra-net-db --file=seed.sql --remote
 ```
 
-**Local (development):**
+#### Variables de entorno
 
-```bash
-npx wrangler d1 execute indra-net-db --file=schema.sql --local
-npx wrangler d1 execute indra-net-db --file=seed.sql --local
-```
+**Workers & Pages** → `indra-net` → **Settings** → **Environment variables**:
 
-Or use the shortcut: `npm run db:reset:local`
+| Variable | Descripción | Tipo |
+|:---------|:------------|:-----|
+| `ADMIN_USERNAME` | Usuario del panel admin | Encrypt |
+| `ADMIN_PASSWORD` | Contraseña del panel admin | Encrypt |
+| `ADMIN_SECRET` | String aleatorio de 32+ caracteres para firmar cookies | Encrypt |
+| `MP_ACCESS_TOKEN` | Access Token de MercadoPago | Encrypt |
+| `MP_PUBLIC_KEY` | Public Key de MercadoPago | Plain |
+| `SITE_URL` | URL del sitio desplegado (ej. `https://indra-net.pages.dev`) | Plain |
+| `CURRENCY` | Moneda para MercadoPago (ej. `ARS`, `UYU`, `MXN`) | Plain |
 
-### 5. Set Up Local Development Secrets
+Guardar → el proyecto se re-deploya automáticamente.
 
-```bash
-cp .dev.vars.example .dev.vars
-```
+### Dominio personalizado
 
-Edit `.dev.vars` with your values. This file is gitignored.
-
-### 6. Test Locally
-
-```bash
-npx wrangler pages dev public
-```
-
-Open [http://localhost:8788](http://localhost:8788). You'll see the full storefront with products from D1.
-
-### 7. Connect to Cloudflare Pages (Git Integration)
-
-This is the recommended deployment method — auto-deploys on every push.
-
-1. Go to [Cloudflare Dashboard → Workers & Pages](https://dash.cloudflare.com/?to=/:account/workers-and-pages)
-2. Click **Create** → **Pages** → **Connect to Git**
-3. Select your GitHub/GitLab repo (`indra-net`)
-4. Configure build settings:
-   - **Build command:** _(leave blank — no build needed)_
-   - **Build output directory:** `public`
-5. Click **Save and Deploy**
-
-Cloudflare will deploy the static files from `public/` and automatically detect the `functions/` directory for serverless functions.
-
-### 8. Add D1 Binding in Dashboard
-
-After the first deploy:
-
-1. Go to **Workers & Pages** → select **indra-net**
-2. Go to **Settings** → **Bindings**
-3. Click **Add** → **D1 database**
-4. Variable name: `DB`
-5. Select your `indra-net-db` database
-6. Click **Save**
-
-> **Alternative:** If `wrangler.toml` has the correct `database_id`, the binding is applied automatically on the next deploy.
-
-### 9. Set Environment Variables (Secrets)
-
-In the Cloudflare Dashboard:
-
-1. Go to **Workers & Pages** → **indra-net** → **Settings** → **Environment variables**
-2. Add these **Production** variables:
-
-| Variable | Value | Type |
-|----------|-------|------|
-| `ADMIN_USERNAME` | Your admin username | Encrypt |
-| `ADMIN_PASSWORD` | Your admin password | Encrypt |
-| `ADMIN_SECRET` | A random 32+ char string | Encrypt |
-| `MP_ACCESS_TOKEN` | Your MercadoPago access token | Encrypt |
-| `MP_PUBLIC_KEY` | Your MercadoPago public key | Plain |
-| `SITE_URL` | `https://indra-net.pages.dev` (your URL) | Plain |
-| `CURRENCY` | `ARS` (or your currency) | Plain |
-
-3. Click **Save and Deploy** to apply.
-
-### 10. Redeploy
-
-Push any commit to trigger a new deployment:
-
-```bash
-git commit --allow-empty -m "Trigger redeploy"
-git push
-```
-
-Or deploy manually:
-
-```bash
-npx wrangler pages deploy public
-```
-
-### 11. Verify
-
-- Visit `https://indra-net.pages.dev` (or your custom domain)
-- Browse products, add to cart, test checkout
-- Go to `/admin.html`, log in, manage products and orders
+En el proyecto de Pages: **Custom domains** → **Set up a custom domain** → ingresar tu dominio. Si el dominio está en Cloudflare, el DNS se configura solo.
 
 ---
 
-## Custom Domain (Optional)
+## ⚡ API
 
-1. In the Pages project settings, go to **Custom domains**
-2. Click **Set up a custom domain**
-3. Enter your domain (e.g., `shop.yourdomain.com`)
-4. Cloudflare will auto-configure DNS if the domain is on Cloudflare
+### Endpoints públicos
 
----
+```
+GET    /api/products                 Listar productos (?category=, ?search=)
+GET    /api/products/:id             Producto por ID
+GET    /api/products/by-slug/:slug   Producto por slug
+GET    /api/categories               Categorías únicas
+POST   /api/checkout                 Crear pedido + preferencia MercadoPago
+POST   /api/webhook/mp               Webhook IPN de MercadoPago
+```
 
-## MercadoPago Setup
+### Endpoints admin (autenticación por cookie)
 
-1. Go to [mercadopago.com/developers](https://www.mercadopago.com/developers)
-2. Create an application
-3. Go to **Credentials**
-4. Copy your **Access Token** and **Public Key**
-5. For testing: use the **Test / Sandbox** credentials
-6. Add them as environment variables (step 9 above)
-7. Set `SITE_URL` to your deployed URL (for webhook callbacks)
+```
+POST   /admin/login                  Autenticar (setea cookie HttpOnly)
+GET    /admin/logout                 Cerrar sesión
+GET    /admin/check                  Verificar si hay sesión activa
+POST   /api/products                 Crear producto
+PUT    /api/products/:id             Actualizar producto
+DELETE /api/products/:id             Eliminar producto
+GET    /api/orders                   Listar todos los pedidos
+PUT    /api/orders/:id/status        Actualizar estado de pedido
+```
 
-**Webhook:** MercadoPago will send IPN notifications to `https://your-site.pages.dev/api/webhook/mp`. Configure this URL in your MercadoPago application settings under **Webhooks / IPN**.
+### Páginas
 
----
-
-## API Reference
-
-### Public Endpoints
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/api/products` | List products (`?category=`, `?search=`) |
-| `GET` | `/api/products/:id` | Single product by ID |
-| `GET` | `/api/products/by-slug/:slug` | Single product by slug |
-| `GET` | `/api/categories` | List unique categories |
-| `POST` | `/api/checkout` | Create order + MercadoPago preference |
-| `POST` | `/api/webhook/mp` | MercadoPago IPN handler |
-
-### Admin Endpoints (cookie-authenticated)
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `POST` | `/admin/login` | Authenticate (sets HttpOnly cookie) |
-| `GET` | `/admin/logout` | Clear session |
-| `GET` | `/admin/check` | Check auth status |
-| `POST` | `/api/products` | Create product |
-| `PUT` | `/api/products/:id` | Update product |
-| `DELETE` | `/api/products/:id` | Delete product |
-| `GET` | `/api/orders` | List all orders |
-| `PUT` | `/api/orders/:id/status` | Update order status |
-
-### Pages
-
-| URL | Description |
-|-----|-------------|
-| `/` | Storefront (index.html) |
-| `/product.html?slug=xxx` | Product detail |
-| `/checkout.html` | Checkout |
-| `/admin.html` | Admin login |
-| `/dashboard.html` | Admin dashboard |
-| `/success.html` | Payment success |
-| `/failure.html` | Payment failure |
-| `/pending.html` | Payment pending |
+```
+/                       Tienda
+/product.html?slug=xxx  Detalle de producto
+/checkout.html          Checkout
+/admin.html             Login admin
+/dashboard.html         Panel de administración
+/success.html           Pago exitoso
+/failure.html           Pago fallido
+/pending.html           Pago pendiente
+```
 
 ---
 
-## Development Workflow
+## 💳 MercadoPago
+
+### Configuración
+
+1. Ir a [mercadopago.com/developers](https://www.mercadopago.com/developers)
+2. Crear una aplicación
+3. En **Credenciales**, copiar el **Access Token** y la **Public Key**
+4. Para testing, usar las credenciales de **Test / Sandbox**
+5. Agregar como variables de entorno en Cloudflare (ver tabla arriba)
+6. Asegurarse de que `SITE_URL` apunte a la URL desplegada
+
+### Flujo de pago
+
+```
+Usuario llena carrito
+  → Checkout: ingresa nombre + email
+    → POST /api/checkout → crea Order en D1 + llama a API de MercadoPago
+      → Redirect a MercadoPago (init_point)
+        → Usuario paga
+          → MercadoPago redirige a /success, /failure, o /pending
+          → MercadoPago envía IPN a /api/webhook/mp → actualiza estado en D1
+```
+
+### Webhook
+
+Configurar la URL de notificaciones IPN en la aplicación de MercadoPago:
+
+```
+https://tu-sitio.pages.dev/api/webhook/mp
+```
+
+---
+
+## 🎨 Sistema de Diseño
+
+### Capas de fondo (de abajo hacia arriba)
+
+1. **Gradiente radial base** — negro profundo (`#020203`) con resplandor índigo sutil desde el centro superior
+2. **Textura de ruido SVG** — ruido fractal al 1.8% de opacidad, efecto de grano fílmico
+3. **Blobs de gradiente animados** — tres esferas (índigo, violeta, azul) con blur de 120px flotando en ciclos de 20–30 segundos
+4. **Motivo Red de Indra** — grilla geométrica de nodos y líneas al 2.5% de opacidad
+
+### Tokens de color
+
+```
+Fondos       #020203 (profundo)    #050506 (base)
+Texto        #EDEDEF (primario)    #8A8F98 (atenuado)    #555962 (tenue)
+Acento       #5E6AD2 → #6872D9 (hover)
+Estados      #30A46C (éxito)       #F5A623 (advertencia) #E5484D (peligro)
+```
+
+### Tarjetas de producto
+
+Cada tarjeta tiene sombras multicapa (borde highlight + sombra ajustada + sombra difusa + oscuridad ambiental), un borde superior con gradiente de 1px, y un efecto de **spotlight** que sigue el cursor — un gradiente radial de 400px del color acento al 10% de opacidad.
+
+### Placeholders generativos
+
+Los productos sin imagen reciben un SVG único tipo constelación, generado deterministicamente a partir del ID del producto: nodos de diferentes tamaños conectados por líneas finas en el rango azul-violeta.
+
+---
+
+## 🛠 Desarrollo
 
 ```bash
-# Local dev with hot reload
+# Servidor local con hot reload
 npx wrangler pages dev public
 
-# Reset local database
+# Resetear base de datos local
 npm run db:reset:local
 
-# Deploy to production
-git push   # (auto-deploys via Git integration)
-# — or —
+# Deploy a producción (si está conectado a Git)
+git push
+
+# Deploy manual
 npx wrangler pages deploy public
 ```
 
+### Scripts disponibles
+
+| Comando | Acción |
+|:--------|:-------|
+| `npm run dev` | Servidor de desarrollo local |
+| `npm run deploy` | Deploy manual a Cloudflare |
+| `npm run db:create` | Crear base de datos D1 |
+| `npm run db:schema` | Ejecutar schema en D1 remota |
+| `npm run db:seed` | Insertar datos iniciales en D1 remota |
+| `npm run db:reset` | Schema + seed en remoto |
+| `npm run db:reset:local` | Schema + seed en local |
+
 ---
 
-## Design System Highlights
-
-- **Background layers:** Radial gradient base + SVG noise (1.8% opacity) + 3 animated blobs (120px blur) + Indra Net web motif (2.5% opacity)
-- **Colors:** Near-black backgrounds (`#020203`), Indigo accent (`#5E6AD2`), high-contrast text hierarchy
-- **Cards:** Multi-layered shadows + 1px top highlight + mouse-tracking spotlight (radial gradient follows cursor)
-- **Animations:** Staggered `fadeInUp` on page load, 300ms expo-out transitions
-- **Generative placeholders:** Each product without an image gets a unique constellation SVG seeded by its ID
-
----
-
-## Costs
-
-Cloudflare Pages + Functions + D1 on the **free tier** includes:
-- 500 deploys/month
-- 100,000 Function requests/day
-- 5 million D1 reads/day, 100K writes/day
-- 5 GB D1 storage
-
-This is more than sufficient for a small-to-medium e-commerce store.
+<p align="center">
+  <sub>Construido con nada más que HTML, CSS, JS y la edge network de Cloudflare.</sub><br>
+  <sub>◉ Todos los nodos conectados.</sub>
+</p>
