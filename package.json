@@ -5,7 +5,7 @@
   "description": "Indra Net — Premium e-commerce on Cloudflare Pages + D1",
   "scripts": {
     "dev": "wrangler pages dev public --d1=DB",
-    "deploy": "wrangler pages deploy public",
+    "deploy": "wrangler pages deploy public --account-id=db48cd24b037af218613e85cf34f4eee",
     "db:create": "wrangler d1 create indra-net-db",
     "db:schema": "wrangler d1 execute indra-net-db --file=schema.sql --remote",
     "db:schema:local": "wrangler d1 execute indra-net-db --file=schema.sql --local",
