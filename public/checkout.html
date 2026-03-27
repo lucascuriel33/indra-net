@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Checkout — Indra Net</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="bg-atmosphere"></div><div class="bg-noise"></div>
+  <div class="bg-blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
+  <div class="bg-web"></div>
+  <nav class="navbar">
+    <a href="/" class="nav-logo"><svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="1" opacity=".2"/><circle cx="16" cy="16" r="8" stroke="currentColor" stroke-width=".8" opacity=".3"/><circle cx="16" cy="16" r="3" fill="currentColor" opacity=".8"/><line x1="16" y1="2" x2="16" y2="30" stroke="currentColor" stroke-width=".6" opacity=".3"/><line x1="2" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width=".6" opacity=".3"/><circle cx="16" cy="2" r="1.5" fill="var(--accent)"/><circle cx="30" cy="16" r="1.5" fill="var(--accent)" opacity=".7"/></svg> Indra Net</a>
+    <ul class="nav-links"><li><a href="/">Tienda</a></li></ul>
+  </nav>
+  <main class="main-content">
+    <div class="container">
+      <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:64px;padding:64px 0;align-items:start">
+        <div>
+          <h1 style="font-size:1.8rem;font-weight:800;letter-spacing:-.03em;margin-bottom:32px">Finalizar Compra</h1>
+          <div class="panel">
+            <h2>Información de Contacto</h2>
+            <div class="form-group"><label class="form-label">Nombre Completo</label><input type="text" class="form-input" id="coName" placeholder="Tu nombre" required></div>
+            <div class="form-group"><label class="form-label">Correo Electrónico</label><input type="email" class="form-input" id="coEmail" placeholder="tu@email.com" required></div>
+            <button class="btn btn-primary btn-lg" style="width:100%" onclick="processCheckout()" id="payBtn">Pagar con MercadoPago</button>
+            <p style="color:var(--text-dim);font-size:.75rem;text-align:center;margin-top:16px">Serás redirigido a MercadoPago para completar el pago de forma segura.</p>
+          </div>
+        </div>
+        <div>
+          <div class="panel" id="coSummary">
+            <h2>Resumen del Pedido</h2>
+            <div id="coItems"><p style="color:var(--text-dim)">Cargando...</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="site-footer"><div class="container">&copy; 2025 Indra Net — Todos los nodos conectados.</div></footer>
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="/static/js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const cart = getCart(), el = document.getElementById('coItems');
+      if (!cart.length) { el.innerHTML = '<p style="color:var(--text-dim)">Tu carrito está vacío. <a href="/" style="color:var(--accent)">Ir a la tienda</a></p>'; document.getElementById('payBtn').disabled = true; document.getElementById('payBtn').style.opacity = '.4'; return; }
+      const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+      el.innerHTML = cart.map(i => `<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:.88rem;color:var(--text-muted)"><span>${i.name} ×${i.quantity}</span><span>$${formatPrice(i.price*i.quantity)}</span></div>`).join('') +
+        `<div style="display:flex;justify-content:space-between;padding-top:16px;margin-top:16px;border-top:1px solid var(--border);font-size:1.1rem;font-weight:700"><span>Total</span><span>$${formatPrice(total)}</span></div>`;
+    });
+    async function processCheckout() {
+      const name = document.getElementById('coName').value.trim(), email = document.getElementById('coEmail').value.trim(), cart = getCart();
+      if (!name || !email) { showToast('Por favor completá tus datos', 'error'); return; }
+      if (!cart.length) { showToast('Tu carrito está vacío', 'error'); return; }
+      const btn = document.getElementById('payBtn'); btn.disabled = true; btn.textContent = 'Procesando...';
+      try {
+        const r = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, items: cart.map(i => ({ product_id: i.id, quantity: i.quantity })) }) });
+        const data = await r.json();
+        if (data.init_point) { clearCart(); location.href = data.init_point; }
+        else if (data.sandbox_init_point) { clearCart(); location.href = data.sandbox_init_point; }
+        else { clearCart(); showToast(`¡Pedido #${data.order_id} creado!`, 'success'); setTimeout(() => location.href = '/success.html', 1500); }
+      } catch(e) { showToast('Error en el checkout. Intentá de nuevo.', 'error'); btn.disabled = false; btn.textContent = 'Pagar con MercadoPago'; }
+    }
+  </script>
+</body>
+</html>

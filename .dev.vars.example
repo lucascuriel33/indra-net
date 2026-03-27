@@ -1,0 +1,8 @@
+# Local development secrets — DO NOT commit this file
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=indra2025
+ADMIN_SECRET=change-me-to-a-random-string
+MP_ACCESS_TOKEN=TEST-your-test-access-token
+MP_PUBLIC_KEY=TEST-your-test-public-key
+SITE_URL=http://localhost:8788
+CURRENCY=ARS

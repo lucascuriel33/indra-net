@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Acceso Admin — Indra Net</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="bg-atmosphere"></div><div class="bg-noise"></div>
+  <div class="bg-blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
+  <div class="bg-web"></div>
+  <nav class="navbar">
+    <a href="/" class="nav-logo"><svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="1" opacity=".2"/><circle cx="16" cy="16" r="8" stroke="currentColor" stroke-width=".8" opacity=".3"/><circle cx="16" cy="16" r="3" fill="currentColor" opacity=".8"/><line x1="16" y1="2" x2="16" y2="30" stroke="currentColor" stroke-width=".6" opacity=".3"/><line x1="2" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width=".6" opacity=".3"/><circle cx="16" cy="2" r="1.5" fill="var(--accent)"/><circle cx="30" cy="16" r="1.5" fill="var(--accent)" opacity=".7"/></svg> Indra Net</a>
+    <ul class="nav-links"><li><a href="/">Tienda</a></li></ul>
+  </nav>
+  <main class="main-content">
+    <div class="container" style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 64px)">
+      <div class="panel" style="width:100%;max-width:380px;padding:48px">
+        <h2 style="text-align:center;margin-bottom:32px">Acceso Administrador</h2>
+        <div class="form-group"><label class="form-label">Usuario</label><input type="text" class="form-input" id="loginUser" placeholder="admin" autocomplete="username"></div>
+        <div class="form-group"><label class="form-label">Contraseña</label><input type="password" class="form-input" id="loginPass" placeholder="••••••••" autocomplete="current-password"></div>
+        <button class="btn btn-primary btn-lg" style="width:100%" onclick="doLogin()" id="loginBtn">Iniciar Sesión</button>
+        <p id="loginError" style="color:var(--danger);font-size:.82rem;text-align:center;margin-top:16px;display:none">Credenciales inválidas</p>
+      </div>
+    </div>
+  </main>
+  <script>
+    fetch('/admin/check').then(r => r.json()).then(d => { if (d.isAdmin) location.href = '/dashboard.html'; });
+    document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+    async function doLogin() {
+      const btn = document.getElementById('loginBtn'); btn.disabled = true; btn.textContent = 'Ingresando...';
+      document.getElementById('loginError').style.display = 'none';
+      try {
+        const r = await fetch('/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: document.getElementById('loginUser').value, password: document.getElementById('loginPass').value }) });
+        if (r.ok) { location.href = '/dashboard.html'; }
+        else { document.getElementById('loginError').style.display = 'block'; btn.disabled = false; btn.textContent = 'Iniciar Sesión'; }
+      } catch(e) { document.getElementById('loginError').style.display = 'block'; btn.disabled = false; btn.textContent = 'Iniciar Sesión'; }
+    }
+  </script>
+</body>
+</html>

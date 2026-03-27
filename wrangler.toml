@@ -1,0 +1,26 @@
+# ══════════════════════════════════════════════════════════════
+# Indra Net — Cloudflare Pages Configuration
+# ══════════════════════════════════════════════════════════════
+# Docs: https://developers.cloudflare.com/pages/functions/wrangler-configuration/
+
+name = "indra-net"
+compatibility_date = "2024-12-01"
+pages_build_output_dir = "public"
+
+# ── D1 Database Binding ──────────────────────────────────────
+[[d1_databases]]
+binding = "DB"
+database_name = "indra-net-db"
+database_id = ""  # ← Fill after running: npx wrangler d1 create indra-net-db
+
+# ── Environment Variables (set via dashboard or wrangler secret) ──
+# ADMIN_USERNAME  - Admin login username
+# ADMIN_PASSWORD  - Admin login password
+# ADMIN_SECRET    - Secret key for signing admin tokens
+# MP_ACCESS_TOKEN - MercadoPago access token
+# MP_PUBLIC_KEY   - MercadoPago public key
+# CURRENCY        - Payment currency (default: ARS)
+# SITE_URL        - Your deployed site URL (for webhook callbacks)
+
+[vars]
+CURRENCY = "ARS"

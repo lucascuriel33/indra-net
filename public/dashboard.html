@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Panel de Administración — Indra Net</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="bg-atmosphere"></div><div class="bg-noise"></div>
+  <div class="bg-blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
+  <div class="bg-web"></div>
+  <nav class="navbar">
+    <a href="/" class="nav-logo"><svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="1" opacity=".2"/><circle cx="16" cy="16" r="8" stroke="currentColor" stroke-width=".8" opacity=".3"/><circle cx="16" cy="16" r="3" fill="currentColor" opacity=".8"/><line x1="16" y1="2" x2="16" y2="30" stroke="currentColor" stroke-width=".6" opacity=".3"/><line x1="2" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width=".6" opacity=".3"/><circle cx="16" cy="2" r="1.5" fill="var(--accent)"/><circle cx="30" cy="16" r="1.5" fill="var(--accent)" opacity=".7"/></svg> Indra Net</a>
+    <ul class="nav-links"><li><a href="/">Tienda</a></li><li><a href="/admin/logout">Cerrar Sesión</a></li></ul>
+  </nav>
+
+  <main class="main-content">
+    <div class="container" style="padding:48px 24px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px">
+        <h1 style="font-size:1.5rem;font-weight:700;letter-spacing:-.02em">Panel de Control</h1>
+        <button class="btn btn-primary" onclick="openModal()">+ Nuevo Producto</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px">
+        <div class="panel" style="padding:24px"><div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);margin-bottom:4px">Total Productos</div><div id="statP" style="font-size:1.8rem;font-weight:800;letter-spacing:-.03em">—</div></div>
+        <div class="panel" style="padding:24px"><div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);margin-bottom:4px">Total Pedidos</div><div id="statO" style="font-size:1.8rem;font-weight:800;letter-spacing:-.03em">—</div></div>
+        <div class="panel" style="padding:24px"><div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);margin-bottom:4px">Ingresos</div><div id="statR" style="font-size:1.8rem;font-weight:800;letter-spacing:-.03em">—</div></div>
+      </div>
+
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="switchTab('products',this)">Productos</button>
+        <button class="admin-tab" onclick="switchTab('orders',this)">Pedidos</button>
+      </div>
+
+      <div id="tabProducts"><div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Destacado</th><th style="width:120px">Acciones</th></tr></thead><tbody id="pTbody"><tr><td colspan="6" style="text-align:center;color:var(--text-dim);padding:2rem">Cargando...</td></tr></tbody></table></div></div>
+      <div id="tabOrders" style="display:none"><div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Pedido #</th><th>Cliente</th><th>Ítems</th><th>Total</th><th>Estado</th><th style="width:120px">Acciones</th></tr></thead><tbody id="oTbody"><tr><td colspan="6" style="text-align:center;color:var(--text-dim);padding:2rem">Cargando...</td></tr></tbody></table></div></div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="productModal">
+    <div class="modal">
+      <h3 id="modalTitle">Nuevo Producto</h3>
+      <input type="hidden" id="editId">
+      <div class="form-group"><label class="form-label">Nombre</label><input type="text" class="form-input" id="pName" placeholder="Nombre del producto"></div>
+      <div class="form-group"><label class="form-label">Descripción</label><textarea class="form-textarea" id="pDesc" placeholder="Descripción del producto"></textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="form-group"><label class="form-label">Precio</label><input type="number" class="form-input" id="pPrice" placeholder="0.00" step="0.01" min="0"></div>
+        <div class="form-group"><label class="form-label">Stock</label><input type="number" class="form-input" id="pStock" placeholder="0" min="0"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Categoría</label><input type="text" class="form-input" id="pCat" placeholder="ej. Hardware"></div>
+      <div class="form-group"><label class="form-label">URL de Imagen</label><input type="text" class="form-input" id="pImg" placeholder="https://..."></div>
+      <div class="form-group" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="pFeat" style="accent-color:var(--accent)"><label for="pFeat" class="form-label" style="margin:0">Producto destacado</label></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveProd()">Guardar Producto</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="/static/js/main.js"></script>
+  <script>
+    fetch('/admin/check').then(r=>r.json()).then(d=>{ if(!d.isAdmin) location.href='/admin.html'; });
+    document.addEventListener('DOMContentLoaded',()=>{loadProds();loadOrds();});
+
+    function switchTab(t,btn){document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('tabProducts').style.display=t==='products'?'block':'none';document.getElementById('tabOrders').style.display=t==='orders'?'block':'none';}
+
+    async function loadProds(){
+      try{const r=await fetch('/api/products');const ps=await r.json();document.getElementById('statP').textContent=ps.length;
+      const tb=document.getElementById('pTbody');
+      if(!ps.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-dim);padding:2rem">Sin productos todavía</td></tr>';return;}
+      tb.innerHTML=ps.map(p=>`<tr><td><strong>${p.name}</strong></td><td>${p.category}</td><td>$${formatPrice(p.price)}</td><td>${p.stock}</td><td>${p.featured?'<span style="color:var(--accent)">★</span>':'—'}</td><td><div style="display:flex;gap:4px"><button class="btn btn-secondary btn-sm" onclick='editProd(${JSON.stringify(p).replace(/'/g,"&#39;")})'>Editar</button><button class="btn btn-danger btn-sm" onclick="delProd(${p.id})">Borrar</button></div></td></tr>`).join('');
+      }catch(e){console.error(e);}
+    }
+
+    async function loadOrds(){
+      try{const r=await fetch('/api/orders');const os=await r.json();document.getElementById('statO').textContent=os.length;
+      const paid=os.filter(o=>o.status==='paid').reduce((s,o)=>s+o.total,0);document.getElementById('statR').textContent='$'+formatPrice(paid);
+      const tb=document.getElementById('oTbody');
+      const statusLabels = { pending:'Pendiente', paid:'Pagado', shipped:'Enviado', cancelled:'Cancelado' };
+      if(!os.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-dim);padding:2rem">Sin pedidos todavía</td></tr>';return;}
+      tb.innerHTML=os.map(o=>`<tr><td>#${o.id}</td><td><div>${o.customer_name||'—'}</div><div style="font-size:.75rem;color:var(--text-dim)">${o.customer_email}</div></td><td>${o.items?.length||0} ítem${(o.items?.length||0)!==1?'s':''}</td><td>$${formatPrice(o.total)}</td><td><span class="status-badge ${o.status}">${statusLabels[o.status]||o.status}</span></td><td><select class="form-select" style="padding:4px 8px;font-size:.78rem;width:auto" onchange="updOrd(${o.id},this.value)"><option value="pending" ${o.status==='pending'?'selected':''}>Pendiente</option><option value="paid" ${o.status==='paid'?'selected':''}>Pagado</option><option value="shipped" ${o.status==='shipped'?'selected':''}>Enviado</option><option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelado</option></select></td></tr>`).join('');
+      }catch(e){console.error(e);}
+    }
+
+    function openModal(p){document.getElementById('modalTitle').textContent=p?'Editar Producto':'Nuevo Producto';document.getElementById('editId').value=p?p.id:'';document.getElementById('pName').value=p?p.name:'';document.getElementById('pDesc').value=p?p.description:'';document.getElementById('pPrice').value=p?p.price:'';document.getElementById('pStock').value=p?p.stock:'';document.getElementById('pCat').value=p?p.category:'';document.getElementById('pImg').value=p?p.image_url:'';document.getElementById('pFeat').checked=p?p.featured:false;document.getElementById('productModal').classList.add('open');}
+    function closeModal(){document.getElementById('productModal').classList.remove('open');}
+    function editProd(p){openModal(p);}
+
+    async function saveProd(){
+      const id=document.getElementById('editId').value;
+      const d={name:document.getElementById('pName').value,description:document.getElementById('pDesc').value,price:parseFloat(document.getElementById('pPrice').value)||0,stock:parseInt(document.getElementById('pStock').value)||0,category:document.getElementById('pCat').value||'General',image_url:document.getElementById('pImg').value,featured:document.getElementById('pFeat').checked};
+      if(!d.name){showToast('El nombre del producto es obligatorio','error');return;}
+      try{await fetch(id?`/api/products/${id}`:'/api/products',{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});closeModal();loadProds();showToast(id?'Producto actualizado':'Producto creado','success');}catch(e){showToast('Error al guardar','error');}
+    }
+
+    async function delProd(id){if(!confirm('¿Eliminar este producto?'))return;try{await fetch(`/api/products/${id}`,{method:'DELETE'});loadProds();showToast('Producto eliminado','success');}catch(e){showToast('Error al eliminar','error');}}
+    async function updOrd(id,st){try{await fetch(`/api/orders/${id}/status`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:st})});loadOrds();showToast('Estado del pedido actualizado','success');}catch(e){showToast('Error al actualizar','error');}}
+  </script>
+</body>
+</html>
