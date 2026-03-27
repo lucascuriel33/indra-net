@@ -4,18 +4,18 @@
   "private": true,
   "description": "Indra Net — Premium e-commerce on Cloudflare Pages + D1",
   "scripts": {
-    "dev": "npx wrangler pages dev public --d1=DB",
-    "deploy": "npx wrangler pages deploy public",
-    "db:create": "npx wrangler d1 create indra-net-db",
-    "db:schema": "npx wrangler d1 execute indra-net-db --file=schema.sql --remote",
-    "db:schema:local": "npx wrangler d1 execute indra-net-db --file=schema.sql --local",
-    "db:seed": "npx wrangler d1 execute indra-net-db --file=seed.sql --remote",
-    "db:seed:local": "npx wrangler d1 execute indra-net-db --file=seed.sql --local",
+    "dev": "wrangler pages dev public --d1=DB",
+    "deploy": "wrangler pages deploy public",
+    "db:create": "wrangler d1 create indra-net-db",
+    "db:schema": "wrangler d1 execute indra-net-db --file=schema.sql --remote",
+    "db:schema:local": "wrangler d1 execute indra-net-db --file=schema.sql --local",
+    "db:seed": "wrangler d1 execute indra-net-db --file=seed.sql --remote",
+    "db:seed:local": "wrangler d1 execute indra-net-db --file=seed.sql --local",
     "db:reset": "npm run db:schema && npm run db:seed",
     "db:reset:local": "npm run db:schema:local && npm run db:seed:local",
     "setup": "npm run db:create && npm run db:reset"
   },
   "devDependencies": {
-    "wrangler": "^3.99.0"
+    "wrangler": "^4.0.0"
   }
 }
