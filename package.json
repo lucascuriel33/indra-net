@@ -6,8 +6,8 @@
   "scripts": {
   "dev": "wrangler pages dev public --d1=DB",
   "build": "echo 'No build step required'", 
-  "deploy": "wrangler pages deploy public"
-}
+  "deploy": "wrangler pages deploy public",
+},
   "devDependencies": {
     "wrangler": "^4.78.0"
   }
