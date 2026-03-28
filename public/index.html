@@ -6,7 +6,53 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/style.css">
+<style>
+  .text-container {
+    display: flex;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1.2rem;
+    gap: 12px; /* Space between text and heart */
+  }
+
+  .mini-heart {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    background-color: #ff3860;
+    transform: rotate(-45deg);
+    /* The heartbeat rhythm */
+    animation: pulse 1.5s infinite ease-in-out;
+    display: inline-block;
+    box-shadow: 0 0 5px rgba(255, 56, 96, 0.4);
+    margin-left: 8px; /* Extra breathing room */
+  }
+
+  /* Creating the rounded tops of the heart */
+  .mini-heart::before,
+  .mini-heart::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background-color: #ff3860;
+    border-radius: 50%;
+  }
+
+  .mini-heart::before { top: -7px; left: 0; }
+  .mini-heart::after { left: 7px; top: 0; }
+
+  @keyframes pulse {
+    0% { transform: rotate(-45deg) scale(1); }
+    15% { transform: rotate(-45deg) scale(1.3); }
+    30% { transform: rotate(-45deg) scale(1.1); }
+    45% { transform: rotate(-45deg) scale(1.4); }
+    100% { transform: rotate(-45deg) scale(1); }
+  }
+</style>
+  
 </head>
+
 <body>
   <div class="bg-atmosphere"></div><div class="bg-noise"></div>
   <div class="bg-blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
@@ -41,8 +87,8 @@
     <div class="container">
       <section class="hero">
         <div class="hero-badge anim-in anim-delay-1"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><circle cx="6" cy="6" r="3"/></svg> Nueva Colección Disponible</div>
-        <h1 class="anim-in anim-delay-2">Grounding Experiences</h1>
-        <p class="anim-in anim-delay-3">WE seek to establish Grounding Experiences for the Upcoming Times by Preserving the Value of Movement and Innovation.</p>
+        <h1 class="anim-in anim-delay-2">shroomy crafts</h1>
+        <p class="anim-in anim-delay-3">well-made artisanal elixirs</p><span class="mini-heart"></span>
         <div class="anim-in anim-delay-4"><a href="#products" class="btn btn-primary btn-lg">Explorar Catálogo</a></div>
       </section>
 
